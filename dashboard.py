@@ -1,3 +1,4 @@
+from ssl import Options
 import dash
 from dash import dcc, html
 from dash.dependencies import Input, Output
@@ -21,6 +22,11 @@ df_states.to_csv("df_brasil.csv")
 df_states = pd.read_csv("df_states.csv")
 df_states = pd.read_csv("df_brasil.csv")
 df_data = df_states[df_states["estado"]=="RJ"]
+
+select_columns= { "casosAcumulado": "Casos Acundlados": ,
+                "casosNovos": "Novos Casos":,
+                "obitosAcumu lado": "óbitos Totais":,
+                "obitosNovos": "óbitos por dia"}
 
 # Data de início
 df_states_ = df_states[df_states["data"] == "2020-05-13"]
@@ -54,7 +60,7 @@ fig2.update_layout(
 )
 
 # ======================== Construção Layout ========================
-app.layout = dbc.Container(
+app.layout = dbc.Container (
     dbc.Row([
         dbc.Col([
             html.Div([
@@ -113,15 +119,33 @@ app.layout = dbc.Container(
                                         "color": "#FFFFFF"})
             ], md=4),
         ]),
-
+        
+            html.div([
+            html.P("selecione que tipo de dado deseja visualizar:", style={"margin-top": "25px"}),  
+            dcc.dropdown(id="location-dropdown",
+                        options= [{"LABEL": j,"value":i}, for i,j in select_columns.items() ]
+                        value="casosNovos",
+                        style={"margin-top": "10px"}
+                ),  
             dcc.Graph(id="line-graph", figure=fig2)
-        ]),
 
+            ])
+
+            
+        ],md=5,style={"padding":"25px", "background-color": "#242424"}),
+
+
+        #coluna da direita
         dbc.Col([
-            dcc.Graph(id="choropleth-map", figure=fig)
-        ])
-    ])
-)
+            dcc.loading(id="louding-1",type="default",
+            children=[
+                dcc.Graph(id="choropleth-map", figure=fig, style=("height":"100vh","margin-right":"10px"))
+                ]
+            )
+            
+        ],md=7)
+    ], no_gutters=True)
+, fluid=True)
 
 if __name__ == "__main__":
     app.run_server(debug=True)
